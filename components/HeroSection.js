@@ -33,14 +33,22 @@ export default function HeroSection() {
       
       <div className='w-full max-w-2xl space-y-6'>
         <div className='flex flex-col sm:flex-row gap-4'>
-          <select 
-            value={serverType}
-            onChange={(e) => setServerType(e.target.value)}
-            className='bg-[#111111] border border-gray-700 rounded-lg px-4 py-3 w-full sm:w-32 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200'
-          >
-            <option value="java">Java</option>
-            <option value="bedrock">Bedrock</option>
-          </select>
+          <div className="w-full sm:w-32">
+            <label htmlFor="server-type" className="sr-only">
+              Minecraft Server Type
+            </label>
+            <select 
+              id="server-type"
+              name="server-type"
+              aria-label="Select Minecraft server type"
+              value={serverType}
+              onChange={(e) => setServerType(e.target.value)}
+              className='bg-[#111111] border border-gray-700 rounded-lg px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200'
+            >
+              <option value="java">Java</option>
+              <option value="bedrock">Bedrock</option>
+            </select>
+          </div>
           
           <form onSubmit={handleSubmit} className='flex-1 w-full'>
             <div className='relative'>

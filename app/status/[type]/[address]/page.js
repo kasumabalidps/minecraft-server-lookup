@@ -28,24 +28,24 @@ export default function ServerStatus({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [latency, setLatency] = useState(null);
+  const [pingError, setPingError] = useState(false);
 
   const measureLatency = async () => {
     try {
       const startTime = Date.now();
-      const res = await fetch(`/api/minecraft/${resolvedParams.type}?url=${resolvedParams.address}`);
+      const res = await fetch(`/api/minecraft/${resolvedParams.type}/ping?url=${resolvedParams.address}`);
       const endTime = Date.now();
-      const newLatency = endTime - startTime;
-      setLatency(newLatency);
       
       if (res.ok) {
-        const data = await res.json();
-        if (!data.success) {
-          throw new Error(data.error || 'Failed to fetch server data');
-        }
-        setServerData(data.data);
+        const newLatency = endTime - startTime;
+        setLatency(newLatency);
+        setPingError(false);
+      } else {
+        setPingError(true);
       }
     } catch (err) {
       console.error('Error measuring latency:', err);
+      setPingError(true);
     }
   };
 
@@ -68,12 +68,19 @@ export default function ServerStatus({ params }) {
     };
 
     fetchData();
-
-    // Set up real-time latency updates
-    const latencyInterval = setInterval(measureLatency, 2000); // Update every 2 seconds
-
-    return () => clearInterval(latencyInterval);
   }, [resolvedParams.type, resolvedParams.address]);
+
+  // Separate effect for latency measurements
+  useEffect(() => {
+    if (!loading && !error) {
+      // Initial latency measurement
+      measureLatency();
+
+      // Set up real-time latency updates
+      const latencyInterval = setInterval(measureLatency, 2000);
+      return () => clearInterval(latencyInterval);
+    }
+  }, [loading, error]);
 
   const LoadingState = () => (
     <>
@@ -237,12 +244,18 @@ export default function ServerStatus({ params }) {
                   title="Latency" 
                   value={
                     <div className="flex items-center gap-2">
-                      <span>{latency ? `${latency}ms` : 'Unknown'}</span>
-                      {latency && (
-                        <span className={`w-2 h-2 rounded-full ${
-                          latency < 100 ? 'bg-emerald-500' : 
-                          latency < 200 ? 'bg-yellow-500' : 'bg-red-500'
-                        }`}></span>
+                      {pingError ? (
+                        <span className="text-red-500">Connection Error</span>
+                      ) : (
+                        <>
+                          <span>{latency ? `${latency}ms` : 'Measuring...'}</span>
+                          {latency && (
+                            <span className={`w-2 h-2 rounded-full ${
+                              latency < 100 ? 'bg-emerald-500' : 
+                              latency < 200 ? 'bg-yellow-500' : 'bg-red-500'
+                            }`}></span>
+                          )}
+                        </>
                       )}
                     </div>
                   }
