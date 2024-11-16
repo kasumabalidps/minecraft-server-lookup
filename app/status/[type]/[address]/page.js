@@ -13,11 +13,41 @@ function StatusCard({ title, value, fullWidth = false }) {
   );
 }
 
+function LoadingCard() {
+  return (
+    <div className="bg-[#111111] p-6 rounded-xl border border-gray-800">
+      <div className="h-5 w-24 bg-gray-800 rounded mb-4 animate-pulse"></div>
+      <div className="h-8 w-32 bg-gray-800 rounded animate-pulse"></div>
+    </div>
+  );
+}
+
 export default function ServerStatus({ params }) {
   const resolvedParams = use(params);
   const [serverData, setServerData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [latency, setLatency] = useState(null);
+
+  const measureLatency = async () => {
+    try {
+      const startTime = Date.now();
+      const res = await fetch(`/api/minecraft/${resolvedParams.type}?url=${resolvedParams.address}`);
+      const endTime = Date.now();
+      const newLatency = endTime - startTime;
+      setLatency(newLatency);
+      
+      if (res.ok) {
+        const data = await res.json();
+        if (!data.success) {
+          throw new Error(data.error || 'Failed to fetch server data');
+        }
+        setServerData(data.data);
+      }
+    } catch (err) {
+      console.error('Error measuring latency:', err);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,16 +68,75 @@ export default function ServerStatus({ params }) {
     };
 
     fetchData();
+
+    // Set up real-time latency updates
+    const latencyInterval = setInterval(measureLatency, 2000); // Update every 2 seconds
+
+    return () => clearInterval(latencyInterval);
   }, [resolvedParams.type, resolvedParams.address]);
 
   const LoadingState = () => (
     <>
       <Navbar />
       <div className="min-h-[calc(100vh-64px)] bg-black text-white">
-        <div className="max-w-7xl mx-auto px-4 py-16">
-          <div className="animate-pulse flex flex-col items-center justify-center space-y-4">
-            <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-            <div className="text-2xl text-gray-400">Loading server status...</div>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="mb-8">
+            <div className="h-8 w-32 bg-gray-800 rounded animate-pulse"></div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Server Info Column */}
+            <div className="lg:col-span-3">
+              <div className="bg-[#111111] border border-gray-800 rounded-xl p-8 mb-8">
+                <div className="flex items-start gap-6">
+                  <div className="w-20 h-20 bg-gray-800 rounded-lg animate-pulse"></div>
+                  <div className="flex-1">
+                    <div className="h-12 bg-gray-800 rounded w-3/4 mb-4 animate-pulse"></div>
+                    <div className="flex flex-wrap gap-4">
+                      <div className="h-6 w-32 bg-gray-800 rounded animate-pulse"></div>
+                      <div className="h-6 w-6 bg-gray-800 rounded animate-pulse"></div>
+                      <div className="h-6 w-40 bg-gray-800 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <LoadingCard key={i} />
+                ))}
+              </div>
+
+              <div className="mt-6">
+                <div className="bg-[#111111] p-6 rounded-xl border border-gray-800">
+                  <div className="h-5 w-40 bg-gray-800 rounded mb-4 animate-pulse"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-800 rounded animate-pulse"></div>
+                    <div className="h-4 bg-gray-800 rounded animate-pulse w-3/4"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Location Info Column */}
+            <div className="lg:col-span-1">
+              <div className="bg-[#111111] border border-gray-800 rounded-xl p-6">
+                <div className="h-8 w-32 bg-gray-800 rounded mb-6 animate-pulse"></div>
+                <div className="space-y-6">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i}>
+                      <div className="h-5 w-24 bg-gray-800 rounded mb-2 animate-pulse"></div>
+                      <div className="h-6 bg-gray-800 rounded animate-pulse"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="fixed bottom-8 right-8 flex items-center gap-3 bg-[#111111] px-4 py-3 rounded-full border border-gray-800 shadow-lg">
+            <div className="w-3 h-3 bg-emerald-500 rounded-full animate-ping"></div>
+            <span className="text-gray-400">Loading server status...</span>
           </div>
         </div>
       </div>
@@ -96,67 +185,106 @@ export default function ServerStatus({ params }) {
             </Link>
           </div>
 
-          <div className="bg-[#111111] border border-gray-800 rounded-xl p-8 mb-8">
-            <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
-              {resolvedParams.address}
-            </h1>
-            <div className="flex flex-wrap gap-4 text-gray-400">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span>{resolvedParams.type.charAt(0).toUpperCase() + resolvedParams.type.slice(1)} Edition</span>
-              </div>
-              <span>•</span>
-              <p>IP: {serverData.ip_address}</p>
-              <span>•</span>
-              <p>Port: {serverData.port}</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <StatusCard 
-              title="Status" 
-              value={
-                <div className="flex items-center gap-2">
-                  <span className={`w-3 h-3 rounded-full ${serverData.online ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
-                  <span className={serverData.online ? 'text-emerald-500' : 'text-red-500'}>
-                    {serverData.online ? 'Online' : 'Offline'}
-                  </span>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Server Info Column */}
+            <div className="lg:col-span-3">
+              <div className="bg-[#111111] border border-gray-800 rounded-xl p-8 mb-8">
+                <div className="flex items-start gap-6">
+                  {serverData?.icon && (
+                    <img 
+                      src={serverData.icon} 
+                      alt="Server Icon" 
+                      className="w-20 h-20 rounded-lg border-2 border-gray-800"
+                    />
+                  )}
+                  <div>
+                    <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
+                      {resolvedParams.address}
+                    </h1>
+                    <div className="flex flex-wrap gap-4 text-gray-400">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span>{resolvedParams.type.charAt(0).toUpperCase() + resolvedParams.type.slice(1)} Edition</span>
+                      </div>
+                      <span>•</span>
+                      <p>IP: {serverData?.ip_address}</p>
+                      <span>•</span>
+                      <p>Port: {serverData?.port}</p>
+                    </div>
+                  </div>
                 </div>
-              }
-            />
-            
-            {serverData.online && (
-              <>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <StatusCard 
+                  title="Status" 
+                  value={
+                    <div className="flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full ${serverData?.online ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+                      <span className={serverData?.online ? 'text-emerald-500' : 'text-red-500'}>
+                        {serverData?.online ? 'Online' : 'Offline'}
+                      </span>
+                    </div>
+                  }
+                />
+
+                <StatusCard 
+                  title="Version" 
+                  value={serverData?.version?.name_clean || serverData?.version?.name || 'Unknown'} 
+                />
+
+                <StatusCard 
+                  title="Latency" 
+                  value={
+                    <div className="flex items-center gap-2">
+                      <span>{latency ? `${latency}ms` : 'Unknown'}</span>
+                      {latency && (
+                        <span className={`w-2 h-2 rounded-full ${
+                          latency < 100 ? 'bg-emerald-500' : 
+                          latency < 200 ? 'bg-yellow-500' : 'bg-red-500'
+                        }`}></span>
+                      )}
+                    </div>
+                  }
+                />
+
                 <StatusCard 
                   title="Players" 
                   value={
                     <div className="flex flex-col">
-                      <span className="text-2xl text-emerald-500">{serverData.players?.online.toLocaleString()}</span>
-                      <span className="text-sm text-gray-400">of {serverData.players?.max.toLocaleString()} max</span>
+                      <span className="text-2xl text-emerald-500">{serverData?.players?.online.toLocaleString()}</span>
+                      <span className="text-sm text-gray-400">of {serverData?.players?.max.toLocaleString()} max</span>
                     </div>
                   }
                 />
-                
-                <StatusCard 
-                  title="Version" 
-                  value={serverData.version?.name_clean || serverData.version?.name || 'Unknown'} 
-                />
 
-                {resolvedParams.type === 'bedrock' && serverData.gamemode && (
-                  <StatusCard 
-                    title="Game Mode" 
-                    value={serverData.gamemode} 
-                  />
-                )}
-
-                {serverData.srv_record && (
+                {serverData?.srv_record ? (
                   <StatusCard 
                     title="SRV Record" 
                     value={`${serverData.srv_record.host}:${serverData.srv_record.port}`} 
                   />
+                ) : (
+                  <StatusCard 
+                    title="Connection" 
+                    value={`${serverData?.ip_address}:${serverData?.port}`} 
+                  />
                 )}
 
-                {serverData.motd?.clean && (
+                {resolvedParams.type === 'bedrock' && serverData?.gamemode ? (
+                  <StatusCard 
+                    title="Game Mode" 
+                    value={serverData.gamemode} 
+                  />
+                ) : (
+                  <StatusCard 
+                    title="Protocol" 
+                    value={serverData?.version?.protocol || 'Unknown'} 
+                  />
+                )}
+              </div>
+
+              {serverData?.motd?.clean && (
+                <div className="mt-6">
                   <StatusCard 
                     title="Message of the Day" 
                     value={
@@ -166,22 +294,40 @@ export default function ServerStatus({ params }) {
                     }
                     fullWidth={true}
                   />
-                )}
+                </div>
+              )}
+            </div>
 
-                {serverData.icon && (
-                  <StatusCard
-                    title="Server Icon"
-                    value={
-                      <img 
-                        src={serverData.icon} 
-                        alt="Server Icon" 
-                        className="w-16 h-16 rounded"
-                      />
-                    }
-                  />
-                )}
-              </>
-            )}
+            {/* Location Info Column */}
+            <div className="lg:col-span-1">
+              <div className="bg-[#111111] border border-gray-800 rounded-xl p-6">
+                <h2 className="text-xl font-semibold mb-4">Location Info</h2>
+                <div className="space-y-4">
+                  {serverData?.location && (
+                    <>
+                      <div>
+                        <h3 className="text-gray-400 text-sm mb-1">Location</h3>
+                        <p className="text-white">
+                          {serverData.location.city && `${serverData.location.city}, `}
+                          {serverData.location.region && `${serverData.location.region}, `}
+                          {serverData.location.country || 'Unknown'}
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="text-gray-400 text-sm mb-1">Network Provider</h3>
+                        <p className="text-white">{serverData.location.isp || 'Unknown'}</p>
+                      </div>
+                      {serverData.location.org && (
+                        <div>
+                          <h3 className="text-gray-400 text-sm mb-1">Organization</h3>
+                          <p className="text-white">{serverData.location.org}</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
