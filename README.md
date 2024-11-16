@@ -2,7 +2,7 @@
 
 A modern web application for checking Minecraft server status, built with Next.js 15. Get real-time information about both Java and Bedrock edition servers including player count, version, and more.
 
-![MSL Preview](preview.png)
+![MSL Preview](https://cdn.discordapp.com/attachments/1252643504522399767/1307290535446450199/image.png?ex=6739c4af&is=6738732f&hm=de7695ebac40be3ce93798290db826111087701bdad1901cd24d9e6bbed12033&)
 
 ## 🌟 Features
 
