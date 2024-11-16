@@ -32,27 +32,27 @@ export default function HeroSection() {
       </div>
       
       <div className='w-full max-w-2xl space-y-6'>
-        <div className='flex gap-4'>
+        <div className='flex flex-col sm:flex-row gap-4'>
           <select 
             value={serverType}
             onChange={(e) => setServerType(e.target.value)}
-            className='bg-[#111111] border border-gray-700 rounded-lg px-4 py-3 w-32 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200'
+            className='bg-[#111111] border border-gray-700 rounded-lg px-4 py-3 w-full sm:w-32 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200'
           >
             <option value="java">Java</option>
             <option value="bedrock">Bedrock</option>
           </select>
           
-          <form onSubmit={handleSubmit} className='flex-1'>
+          <form onSubmit={handleSubmit} className='flex-1 w-full'>
             <div className='relative'>
               <input 
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder='Enter server IP (ex: hypixel.net)' 
-                className='w-full bg-[#111111] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 placeholder-gray-500'
+                className='w-full bg-[#111111] border border-gray-700 rounded-lg px-4 py-3 pr-24 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 placeholder-gray-500'
               />
               <button 
                 type='submit'
-                className='absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-md transition-colors duration-200 font-medium'
+                className='absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-600 hover:bg-emerald-500 px-4 sm:px-6 py-2 rounded-md transition-colors duration-200 font-medium text-sm sm:text-base'
               >
                 Search
               </button>
