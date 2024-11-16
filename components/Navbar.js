@@ -17,9 +17,9 @@ export default function Navbar() {
           <div>
             <ul className='flex gap-6 items-center'>
               <li className='hover:text-emerald-500 cursor-pointer transition-colors duration-200 font-medium'>Home</li>
+              <li className='hover:text-emerald-500 cursor-pointer transition-colors duration-200 font-medium'>API</li>
               <li className='hover:text-emerald-500 cursor-pointer transition-colors duration-200 font-medium'>About</li>
-              <li className='hover:text-emerald-500 cursor-pointer transition-colors duration-200 font-medium'>Support</li>
-              <li className='px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg cursor-pointer transition-colors duration-200 font-medium'>Blog</li>
+              <li className='px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg cursor-pointer transition-colors duration-200 font-medium'>Dashboard</li>
             </ul>
           </div>
         </div>
