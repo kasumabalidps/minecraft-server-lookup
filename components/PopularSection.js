@@ -1,56 +1,126 @@
-import React from 'react'
+'use client'
 
-export default function PopularSection() {
-  const servers = [
+import React, { useState, useEffect } from 'react'
+
+const PopularSection = () => {
+  const [servers, setServers] = useState([
     {
       name: 'Hypixel',
       description: 'The world\'s largest Minecraft server network, featuring original games like SkyBlock and BedWars.',
       ip: 'mc.hypixel.net',
-      players: '100k+',
-      status: 'Online',
+      players: 'Loading...',
+      status: 'Loading...',
       platform: 'Java'
     },
     {
       name: 'Mineplex',
       description: 'One of the largest Minecraft networks featuring unique minigames and creative game modes.',
       ip: 'us.mineplex.com',
-      players: '50k+',
-      status: 'Online',
+      players: 'Loading...',
+      status: 'Loading...',
       platform: 'Java & Bedrock'
     },
     {
       name: 'CubeCraft',
       description: 'Popular server network offering various minigames and survival game modes for both Java and Bedrock.',
       ip: 'play.cubecraft.net',
-      players: '30k+',
-      status: 'Online',
+      players: 'Loading...',
+      status: 'Loading...',
       platform: 'Java & Bedrock'
     },
     {
       name: 'Wynncraft',
       description: 'The largest MMORPG server in Minecraft, featuring custom quests, items, and a vast open world.',
       ip: 'play.wynncraft.com',
-      players: '20k+',
-      status: 'Online',
-      platform: 'Bedrock'
+      players: 'Loading...',
+      status: 'Loading...',
+      platform: 'Java'
     },
     {
       name: 'ManaCube',
       description: 'Feature-rich Minecraft network offering Skyblock, Prison, and various survival game modes.',
       ip: 'play.manacube.com',
-      players: '15k+',
-      status: 'Online',
+      players: 'Loading...',
+      status: 'Loading...',
       platform: 'Java'
     },
     {
       name: 'GommeHD',
       description: 'One of Europe\'s largest Minecraft networks with various minigames and competitive modes.',
       ip: 'gommehd.net',
-      players: '25k+',
-      status: 'Online',
+      players: 'Loading...',
+      status: 'Loading...',
       platform: 'Java'
     }
-  ]
+  ]);
+
+  useEffect(() => {
+    const fetchServerData = async () => {
+      const updatedServers = await Promise.all(
+        servers.map(async (server) => {
+          try {
+            const platforms = server.platform.toLowerCase().split(' & ');
+            let javaData = null;
+            let bedrockData = null;
+
+            try {
+              if (platforms.includes('java')) {
+                const javaRes = await fetch(`/api/minecraft/java?url=${server.ip}`);
+                if (!javaRes.ok) throw new Error(`HTTP error! status: ${javaRes.status}`);
+                javaData = await javaRes.json();
+              }
+
+              if (platforms.includes('bedrock')) {
+                const bedrockRes = await fetch(`/api/minecraft/bedrock?url=${server.ip}`);
+                if (!bedrockRes.ok) throw new Error(`HTTP error! status: ${bedrockRes.status}`);
+                bedrockData = await bedrockRes.json();
+              }
+
+              const data = javaData?.data || bedrockData?.data;
+              
+              if (!data) {
+                return {
+                  ...server,
+                  players: 'Offline',
+                  status: 'Offline'
+                };
+              }
+
+              return {
+                ...server,
+                players: data.players?.online !== undefined ? `${data.players.online} online` : 'N/A',
+                status: data.online ? 'Online' : 'Offline',
+                description: data.motd?.clean && Array.isArray(data.motd.clean) && data.motd.clean.length > 0
+                  ? data.motd.clean.join('\n')
+                  : server.description
+              };
+            } catch (error) {
+              console.error(`Error fetching data for ${server.name}:`, error);
+              return {
+                ...server,
+                players: 'Error',
+                status: 'Unknown'
+              };
+            }
+          } catch (error) {
+            console.error(`Error fetching data for ${server.name}:`, error);
+            return {
+              ...server,
+              players: 'Error',
+              status: 'Unknown'
+            };
+          }
+        })
+      );
+
+      setServers(updatedServers);
+    };
+
+    fetchServerData();
+    // Refresh every 5 minutes
+    const interval = setInterval(fetchServerData, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className='max-w-7xl mx-auto px-4'>
@@ -98,3 +168,5 @@ export default function PopularSection() {
     </div>
   )
 }
+
+export default PopularSection;
