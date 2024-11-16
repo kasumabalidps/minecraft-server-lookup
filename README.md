@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Minecraft Server Lookup (MSL)
 
-## Getting Started
+A modern web application for checking Minecraft server status, built with Next.js 15. Get real-time information about both Java and Bedrock edition servers including player count, version, and more.
 
-First, run the development server:
+![MSL Preview](preview.png)
 
+## 🌟 Features
+
+- **Real-time Server Status**: Check the status of any Minecraft server instantly
+- **Multi-Edition Support**: Works with both Java and Bedrock edition servers
+- **Detailed Information**: View player count, version, MOTD, and more
+- **Modern UI**: Clean and responsive design with dark theme
+- **API Access**: Public API endpoints for developers
+- **Mobile Friendly**: Fully responsive on all devices
+
+## 🚀 Tech Stack
+
+- **Framework**: Next.js 15
+- **Styling**: Tailwind CSS
+- **Deployment**: Vercel
+- **API**: MCStatus.io
+- **Language**: JavaScript
+
+## 📦 Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/kasumabalidps/minecraft-server-lookup.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+cd minecraft-server-lookup
+npm install
+```
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+3. Create a `next.config.js` file:
+```javascript
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    domains: ['avatars.githubusercontent.com'],
+  },
+}
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+module.exports = nextConfig
+```
 
-## Learn More
+4. Run the development server:
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔧 Usage
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Visit the website
+2. Select server edition (Java/Bedrock)
+3. Enter server address (e.g., hypixel.net)
+4. Click Search to view server status
 
-## Deploy on Vercel
+## 📚 API Documentation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Base URL
+```
+https://your-domain.com/api/minecraft
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Endpoints
+
+#### Java Edition
+```http
+GET /api/minecraft/java?url={server_address}
+```
+
+#### Bedrock Edition
+```http
+GET /api/minecraft/bedrock?url={server_address}
+```
+
+For detailed API documentation, visit the [API Docs](/api-docs) page.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [MCStatus.io](https://mcstatus.io/) for providing the server status API
+- [Next.js](https://nextjs.org/) for the amazing framework
+- [Tailwind CSS](https://tailwindcss.com/) for the styling system
+- [Vercel](https://vercel.com/) for hosting
+
+## 👨‍💻 Developer
+
+- **Kasuma Bali** - [GitHub](https://github.com/kasumabalidps)
+
+## 🔗 Links
+
+- [Live Demo](https://your-demo-url.vercel.app)
+- [GitHub Repository](https://github.com/kasumabalidps/minecraft-server-lookup)
+- [Report Bug](https://github.com/kasumabalidps/minecraft-server-lookup/issues)
+- [Request Feature](https://github.com/kasumabalidps/minecraft-server-lookup/issues)
